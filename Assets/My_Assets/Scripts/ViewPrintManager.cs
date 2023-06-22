@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using AAA.OpenAI;
+
+
 public class ViewPrintManager: MonoBehaviour
 {
     [SerializeField] string openAIApiKey;
