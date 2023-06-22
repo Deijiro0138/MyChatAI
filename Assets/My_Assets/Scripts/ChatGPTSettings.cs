@@ -111,7 +111,6 @@ namespace AAA.OpenAI
             lodingIcon.enabled = false;
             userComment.interactable = true;
             
-
             if (request.result == UnityWebRequest.Result.ConnectionError ||
                 request.result == UnityWebRequest.Result.ProtocolError)
             {
@@ -129,11 +128,6 @@ namespace AAA.OpenAI
 
                 return responseObject;
             }
-            
-            
-
         }
     }
-
-    
 }
