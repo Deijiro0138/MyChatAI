@@ -5,21 +5,22 @@ using UnityEngine.UI;
 using AAA.OpenAI;
 public class ViewPrintManager: MonoBehaviour
 {
-    [SerializeField] string _openAIApiKey;
-    [SerializeField] InputField _inputField;
-    [SerializeField] Image _circleLoading;
-    [SerializeField] Text _response;
+    [SerializeField] string openAIApiKey;
+    [SerializeField] InputField userComment;
+    [SerializeField] Image loadingIcon;
+    [SerializeField] Text chatHistory;
 
     void Start()
     {
-        _inputField = _inputField.GetComponent<InputField>();
-        _response = _response.GetComponent<Text>();
+        userComment = userComment.GetComponent<InputField>();
+        chatHistory = chatHistory.GetComponent<Text>();
     }
 
     public void SendMessageToChatGPT()
     {
-        var chatGPTConnection = new ChatGPTConnection(_openAIApiKey);
-        chatGPTConnection.RequestAsync(_inputField.text);
+        var chatGPTConnection = new ChatGPTConnection(openAIApiKey);
+        chatHistory.text += $"Ž©•ª:{userComment.text}\n";
+        chatGPTConnection.RequestAsync(userComment, loadingIcon, chatHistory);
     }
 
     public void StartLoading()
