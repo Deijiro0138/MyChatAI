@@ -106,7 +106,6 @@ namespace AAA.OpenAI
 
             await request.SendWebRequest().ToUniTask(Progress.Create<float>(progress =>
             {
-                lodingIcon.fillAmount = progress;
             }));
 
             lodingIcon.enabled = false;

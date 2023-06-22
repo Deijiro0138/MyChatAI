@@ -12,6 +12,8 @@ public class ViewPrintManager: MonoBehaviour
 
     void Start()
     {
+        loadingIcon.enabled = false;
+
         userComment = userComment.GetComponent<InputField>();
         chatHistory = chatHistory.GetComponent<Text>();
     }
