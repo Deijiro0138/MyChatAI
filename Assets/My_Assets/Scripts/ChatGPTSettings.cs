@@ -70,10 +70,11 @@ namespace AAA.OpenAI
                                       出力形式は以下のjsonフォーマットとします。このフォーマット以外で会話しないでください。
                                       {
                                             emotion: {
-                                                  joy    : 0~5,
-                                                  fun    : 0~5,
-                                                  anger : 0~5,
-                                                  sad    : 0~5,
+                                                  happy     : 0.0~1.0,
+                                                  angry     : 0.0~1.0,
+                                                  sad        : 0.0~1.0,
+                                                  relaxed   : 0.0~1.0,
+                                                  surprised : 0.0~1.0,
                                             }
                                             message: ""会話の文章""
                                       } "

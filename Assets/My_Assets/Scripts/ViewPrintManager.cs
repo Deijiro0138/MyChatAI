@@ -5,13 +5,15 @@ using UnityEngine;
 using UnityEngine.UI;
 using AAA.OpenAI;
 
-
 public class ViewPrintManager: MonoBehaviour
 {
     [SerializeField] string openAIApiKey;
     [SerializeField] InputField userComment;
     [SerializeField] Image loadingIcon;
     [SerializeField] Text chatHistory;
+
+    private LoadVRMAvatar loadVRMAvatar;
+
 
     public class AvatarReaction
     {
@@ -21,16 +23,18 @@ public class ViewPrintManager: MonoBehaviour
 
     public class Emotion
     {
-        public int joy;
-        public int fun;
-        public int anger;
-        public int sad;
+        public float happy;
+        public float angry;
+        public float sad;
+        public float relaxed;
+        public float surprised;
     }
 
     void Start()
     {
         loadingIcon.enabled = false;
 
+        loadVRMAvatar = new LoadVRMAvatar();
         userComment = userComment.GetComponent<InputField>();
         chatHistory = chatHistory.GetComponent<Text>();
     }
@@ -45,7 +49,9 @@ public class ViewPrintManager: MonoBehaviour
         var avatarReaction = response.choices[0].message.content;
         var reactionMessage = JsonConvert.DeserializeObject<AvatarReaction>(avatarReaction);
 
+        loadVRMAvatar.AvatarFaceControl(reactionMessage.emotion);
         chatHistory.text += $"ChatGPT:{reactionMessage.message}\n";
+
     }
 
 }
