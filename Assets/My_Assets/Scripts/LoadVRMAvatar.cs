@@ -6,7 +6,7 @@ using UniVRM10;
 
 public class LoadVRMAvatar : MonoBehaviour
 {
-    [SerializeField] Vector3 vrmRespawnPosition;
+    [SerializeField] RuntimeAnimatorController vrmAnimatorController;
     [SerializeField] List<string> vrmName = new List<string>();
 
     public static GameObject vrmAvatar;
@@ -24,7 +24,9 @@ public class LoadVRMAvatar : MonoBehaviour
             var vrm10Instance = await Vrm10.LoadPathAsync(path);
             vrmAvatar = vrm10Instance.gameObject;
 
-            vrmAvatar.transform.Rotate(vrmRespawnPosition);
+            Animator animator = vrmAvatar.GetComponent<Animator>();
+            animator.runtimeAnimatorController = (RuntimeAnimatorController)
+                RuntimeAnimatorController.Instantiate(vrmAnimatorController);
         } catch (Exception e)
         {
             Debug.LogError("Failed to load");
@@ -32,6 +34,7 @@ public class LoadVRMAvatar : MonoBehaviour
             throw;
         }
     }
+
 
     public void AvatarFaceControl(ViewPrintManager.Emotion emotion)
     {
@@ -50,6 +53,5 @@ public class LoadVRMAvatar : MonoBehaviour
         {
             Debug.LogError("VRM Avatar is not loaded");
         }
-        
     }
 }
