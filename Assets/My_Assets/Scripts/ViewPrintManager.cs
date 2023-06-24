@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using AAA.OpenAI;
 
+
 public class ViewPrintManager: MonoBehaviour
 {
     [SerializeField] string openAIApiKey;
@@ -46,11 +47,13 @@ public class ViewPrintManager: MonoBehaviour
         chatHistory.text += $"Ž©•ª:{userComment.text}\n";
 
         var response = await chatGPTConnection.RequestAsync(userComment, loadingIcon);
-        var avatarReaction = response.choices[0].message.content;
-        var reactionMessage = JsonConvert.DeserializeObject<AvatarReaction>(avatarReaction);
+        var responseJsonData = response.choices[0].message.content;
+        var responseData = JsonConvert.DeserializeObject<AvatarReaction>(responseJsonData);
+        string reactionMessage = responseData.message;
 
-        loadVRMAvatar.AvatarFaceControl(reactionMessage.emotion);
-        chatHistory.text += $"ChatGPT:{reactionMessage.message}\n";
+        loadVRMAvatar.AvatarFaceControl(responseData.emotion);
+        chatHistory.text += $"ChatGPT:{reactionMessage}\n";
+        OpenJTalk.Speak(reactionMessage, "tohoku-f01-neutral");
 
     }
 
