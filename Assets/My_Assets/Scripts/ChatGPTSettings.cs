@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.Networking;
 
 namespace AAA.OpenAI
@@ -62,8 +63,9 @@ namespace AAA.OpenAI
                 new ChatGPTMessageModel() { role = "system", content = "語尾に「にゃ」をつけて" });
         }
 
-        public async UniTask<ChatGPTResponseModel> RequestAsync(string userMessage)
+        public async UniTask<ChatGPTResponseModel> RequestAsync(InputField userComment, Image lodingIcon, Text chatHistory)
         {
+            string userMessage = userComment.text;
             //文章生成AIのAPIのエンドポイントを設定
             var apiUrl = "https://api.openai.com/v1/chat/completions";
 
@@ -99,12 +101,21 @@ namespace AAA.OpenAI
                 request.SetRequestHeader(header.Key, header.Value);
             }
 
-            await request.SendWebRequest();
+            lodingIcon.enabled = true;
+            userComment.interactable = false;
 
+            await request.SendWebRequest().ToUniTask(Progress.Create<float>(progress =>
+            {
+            }));
+
+            lodingIcon.enabled = false;
+            userComment.interactable = true;
+            
             if (request.result == UnityWebRequest.Result.ConnectionError ||
                 request.result == UnityWebRequest.Result.ProtocolError)
             {
                 Debug.LogError(request.error);
+
                 throw new Exception();
             }
             else
@@ -112,7 +123,9 @@ namespace AAA.OpenAI
                 var responseString = request.downloadHandler.text;
                 var responseObject = JsonUtility.FromJson<ChatGPTResponseModel>(responseString);
                 Debug.Log("ChatGPT:" + responseObject.choices[0].message.content);
+                chatHistory.text += $"ChatGPT:{responseObject.choices[0].message.content}\n";
                 _messageList.Add(responseObject.choices[0].message);
+
                 return responseObject;
             }
         }
