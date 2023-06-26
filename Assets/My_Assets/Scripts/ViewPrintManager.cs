@@ -53,7 +53,6 @@ public class ViewPrintManager: MonoBehaviour
 
         loadVRMAvatar.AvatarFaceControl(responseData.emotion);
         chatHistory.text += $"ChatGPT:{reactionMessage}\n";
-        OpenJTalk.Speak(reactionMessage, "tohoku-f01-neutral");
 
     }
 
