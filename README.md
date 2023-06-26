@@ -12,6 +12,9 @@ This application serves as someone to talk to and allows us to chear up you tell
 - Newtonsoft Json 3.2.1
 - [OpenJTalkForUnity 1.11v3](https://github.com/rarafy/OpenJTalkForUnity/releases/tag/open_jtalk-1.11v3)
 
+## Caution
+It is necessary to delete OpenJTalkForUnity/Scripts/jtd_cs.cs when importing OpenJTalkForUnity, some compile errors occur if debugging Unity Projects.
+
 # Istallation
 
 # Usage

@@ -1381,9 +1381,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   vrmAnimatorController: {fileID: 9100000, guid: 4cff200b19bb5354cb355693f26527a9, type: 2}
-  vrmName:
-  - AvatarA
-  - AvatarC
+  vrmName: tohoku-f01
+  vrmNameList:
+  - tohoku-f01
+  - mei
+  - takumi
 --- !u!1 &1667623862
 GameObject:
   m_ObjectHideFlags: 0

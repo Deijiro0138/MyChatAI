@@ -7,13 +7,18 @@ using UniVRM10;
 public class LoadVRMAvatar : MonoBehaviour
 {
     [SerializeField] RuntimeAnimatorController vrmAnimatorController;
-    [SerializeField] List<string> vrmName = new List<string>();
 
+    public static string vrmName = "tohoku-f01";
     public static GameObject vrmAvatar;
-    // Start is called before the first frame update
+    public static List<string> vrmNameList = new List<string> {
+        "tohoku-f01",
+        "mei",
+        "takumi"
+    };
+
     private void Start()
     {
-        string vrmPath = $"{Application.streamingAssetsPath}/{vrmName[0]}.vrm";
+        string vrmPath = $"{Application.streamingAssetsPath}/{vrmName}.vrm";
         VRMLoadAsync(vrmPath);
     }
 
@@ -34,7 +39,6 @@ public class LoadVRMAvatar : MonoBehaviour
             throw;
         }
     }
-
 
     public void AvatarFaceControl(ViewPrintManager.Emotion emotion)
     {

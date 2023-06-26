@@ -14,6 +14,7 @@ public class ViewPrintManager: MonoBehaviour
     [SerializeField] Text chatHistory;
 
     private LoadVRMAvatar loadVRMAvatar;
+    private VRMBodyControl vrmBodyControl;
 
 
     public class AvatarReaction
@@ -36,6 +37,8 @@ public class ViewPrintManager: MonoBehaviour
         loadingIcon.enabled = false;
 
         loadVRMAvatar = new LoadVRMAvatar();
+        vrmBodyControl = new VRMBodyControl();
+
         userComment = userComment.GetComponent<InputField>();
         chatHistory = chatHistory.GetComponent<Text>();
     }
@@ -50,9 +53,11 @@ public class ViewPrintManager: MonoBehaviour
         var responseJsonData = response.choices[0].message.content;
         var responseData = JsonConvert.DeserializeObject<AvatarReaction>(responseJsonData);
         string reactionMessage = responseData.message;
+        Emotion reactionEmotion = responseData.emotion;
 
-        loadVRMAvatar.AvatarFaceControl(responseData.emotion);
+        loadVRMAvatar.AvatarFaceControl(reactionEmotion);
         chatHistory.text += $"ChatGPT:{reactionMessage}\n";
+        vrmBodyControl.AvatarSpeakMessage(reactionEmotion, reactionMessage);
 
     }
 
