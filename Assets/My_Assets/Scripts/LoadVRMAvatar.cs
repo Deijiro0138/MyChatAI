@@ -2,13 +2,17 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using UniVRM10;
 
 public class LoadVRMAvatar : MonoBehaviour
 {
     [SerializeField] RuntimeAnimatorController vrmAnimatorController;
+    [SerializeField] Button tohokuF01;
+    [SerializeField] Button mei;
+    [SerializeField] Button takumi;
 
-    public static string vrmName = "tohoku-f01";
+    public static string vrmName;
     public static GameObject vrmAvatar;
     public static List<string> vrmNameList = new List<string> {
         "tohoku-f01",
@@ -16,11 +20,29 @@ public class LoadVRMAvatar : MonoBehaviour
         "takumi"
     };
 
+
     private void Start()
     {
-        string vrmPath = $"{Application.streamingAssetsPath}/{vrmName}.vrm";
-        VRMLoadAsync(vrmPath);
+        tohokuF01.onClick.AddListener(() => SelectVRMAvatar(vrmNameList[0]));
+        mei.onClick.AddListener(() => SelectVRMAvatar(vrmNameList[1]));
+        takumi.onClick.AddListener(() => SelectVRMAvatar(vrmNameList[2]));
+
     }
+
+    public void SelectVRMAvatar(string name)
+    {
+        if (vrmAvatar != null)
+        {
+            Destroy(vrmAvatar);
+        }
+
+        var vrmPath = $"{Application.streamingAssetsPath}/{name}.vrm";
+        vrmName = name;
+
+        VRMLoadAsync(vrmPath);
+        Debug.Log(vrmName);
+    } 
+
 
     private async void VRMLoadAsync(string path)
     {
@@ -53,8 +75,7 @@ public class LoadVRMAvatar : MonoBehaviour
                 { ExpressionKey.Surprised, emotion.surprised},
              };
              controller.SetWeights(facial);
-        } else
-        {
+        } else {
             Debug.LogError("VRM Avatar is not loaded");
         }
     }

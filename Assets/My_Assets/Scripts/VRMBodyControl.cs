@@ -1,27 +1,20 @@
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using JTalkDll;
 
 public class VRMBodyControl : MonoBehaviour
 {
     private LoadVRMAvatar loadVRMAvatar;
-    // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
         loadVRMAvatar = new LoadVRMAvatar();
     }
 
-    // Update is called once per frame
-    void Update()
+    public async UniTask AvatarSpeakMessage(ViewPrintManager.Emotion emotion, string msg)
     {
-        
-    }
-
-    public void AvatarSpeakMessage(ViewPrintManager.Emotion emotion, string msg)
-    {
-
         var voiceEmotion = CalculateVoiceEmotion(emotion);
 
         foreach(var avatar in LoadVRMAvatar.vrmNameList.Select((name, index) => new { name, index}))
@@ -36,20 +29,17 @@ public class VRMBodyControl : MonoBehaviour
                     if (voiceEmotion == "normal")
                     {
                         voiceName += "neutral";
-                    } else
-                    {
+                    } else {
                         voiceName += voiceEmotion;
                     }
-                } else
-                {
+                } else {
                     voiceName = avatar.name + "_" + voiceEmotion;
                 }
 
-                OpenJTalk.Speak(msg, voiceName);
+                await UniTask.Run(() => OpenJTalk.Speak(msg, voiceName));
                 break;
             }
         }
-
     }
 
     private string CalculateVoiceEmotion(ViewPrintManager.Emotion emotion)

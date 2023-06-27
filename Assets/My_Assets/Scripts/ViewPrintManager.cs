@@ -9,9 +9,10 @@ using AAA.OpenAI;
 public class ViewPrintManager: MonoBehaviour
 {
     [SerializeField] string openAIApiKey;
-    [SerializeField] InputField userComment;
     [SerializeField] Image loadingIcon;
     [SerializeField] Text chatHistory;
+
+    public InputField userComment;
 
     private LoadVRMAvatar loadVRMAvatar;
     private VRMBodyControl vrmBodyControl;
@@ -32,7 +33,7 @@ public class ViewPrintManager: MonoBehaviour
         public float surprised;
     }
 
-    void Start()
+    private void Start()
     {
         loadingIcon.enabled = false;
 
@@ -41,6 +42,17 @@ public class ViewPrintManager: MonoBehaviour
 
         userComment = userComment.GetComponent<InputField>();
         chatHistory = chatHistory.GetComponent<Text>();
+    }
+
+    private void Update()
+    {
+        if (LoadVRMAvatar.vrmName == null)
+        {
+            userComment.interactable = false;
+        } else
+        {
+            userComment.interactable = true;
+        }
     }
 
     public async void SendMessageToChatGPT()
@@ -57,7 +69,10 @@ public class ViewPrintManager: MonoBehaviour
 
         loadVRMAvatar.AvatarFaceControl(reactionEmotion);
         chatHistory.text += $"ChatGPT:{reactionMessage}\n";
-        vrmBodyControl.AvatarSpeakMessage(reactionEmotion, reactionMessage);
+
+        await vrmBodyControl.AvatarSpeakMessage(reactionEmotion, reactionMessage);
+
+        userComment.interactable = true;
 
     }
 
