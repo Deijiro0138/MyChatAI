@@ -60,10 +60,28 @@ namespace AAA.OpenAI
         {
             _apiKey = apiKey;
             _messageList.Add(
-                new ChatGPTMessageModel() { role = "system", content = "語尾に「にゃ」をつけて" });
+                new ChatGPTMessageModel() {
+                    role = "system",
+                    content = @"以下の条件に従って、疑似的な感情をもつチャットボットとしてロールプレイをします。
+                                      以後の会話では、あなたは下記の4つの感情パラメーターを持つかのように、振る舞うものとします。
+                                      各感情パラメーターは会話を通じて変動するものとします。
+                                      現在の感情パラメーターの値を反映するように、あなたの返答のトーンや発言は変化します。
+                                      以後の会話ではまず現在の感情パラメータを出力し、その後に会話を出力してください。
+                                      出力形式は以下のjsonフォーマットとします。このフォーマット以外で会話しないでください。
+                                      {
+                                            emotion: {
+                                                  happy     : 0.0~1.0,
+                                                  angry     : 0.0~1.0,
+                                                  sad        : 0.0~1.0,
+                                                  relaxed   : 0.0~1.0,
+                                                  surprised : 0.0~1.0,
+                                            }
+                                            message: ""会話の文章""
+                                      } "
+                });
         }
 
-        public async UniTask<ChatGPTResponseModel> RequestAsync(InputField userComment, Image lodingIcon, Text chatHistory)
+        public async UniTask<ChatGPTResponseModel> RequestAsync(InputField userComment, Image lodingIcon)
         {
             string userMessage = userComment.text;
             //文章生成AIのAPIのエンドポイントを設定
@@ -109,7 +127,6 @@ namespace AAA.OpenAI
             }));
 
             lodingIcon.enabled = false;
-            userComment.interactable = true;
             
             if (request.result == UnityWebRequest.Result.ConnectionError ||
                 request.result == UnityWebRequest.Result.ProtocolError)
@@ -122,8 +139,9 @@ namespace AAA.OpenAI
             {
                 var responseString = request.downloadHandler.text;
                 var responseObject = JsonUtility.FromJson<ChatGPTResponseModel>(responseString);
+
                 Debug.Log("ChatGPT:" + responseObject.choices[0].message.content);
-                chatHistory.text += $"ChatGPT:{responseObject.choices[0].message.content}\n";
+
                 _messageList.Add(responseObject.choices[0].message);
 
                 return responseObject;
