@@ -72,6 +72,5 @@ public class VRMBodyControl : MonoBehaviour
         var maxIndex = scores.IndexOf(maxScore);
 
         return emotionVoice[maxIndex];
-
     }
 }

@@ -11,6 +11,7 @@ public class ViewPrintManager: MonoBehaviour
     [SerializeField] string openAIApiKey;
     [SerializeField] Image loadingIcon;
     [SerializeField] Text chatHistory;
+    [SerializeField] Text emotionError;
 
     public InputField userComment;
 
@@ -63,17 +64,32 @@ public class ViewPrintManager: MonoBehaviour
 
         var response = await chatGPTConnection.RequestAsync(userComment, loadingIcon);
         var responseJsonData = response.choices[0].message.content;
-        var responseData = JsonConvert.DeserializeObject<AvatarReaction>(responseJsonData);
-        string reactionMessage = responseData.message;
-        Emotion reactionEmotion = responseData.emotion;
 
-        loadVRMAvatar.AvatarFaceControl(reactionEmotion);
-        chatHistory.text += $"ChatGPT:{reactionMessage}\n";
+        try
+        {
+            var responseData = JsonConvert.DeserializeObject<AvatarReaction>(responseJsonData);
+            Emotion reactionEmotion = responseData.emotion;
+            string reactionMessage = responseData.message;
 
-        await vrmBodyControl.AvatarSpeakMessage(reactionEmotion, reactionMessage);
+            loadVRMAvatar.AvatarFaceControl(reactionEmotion);
+            chatHistory.text += $"ChatGPT:{reactionMessage}\n";
+
+            await vrmBodyControl.AvatarSpeakMessage(reactionEmotion, reactionMessage);
+        }
+        catch (JsonException e)
+        {
+            EmotionError();
+            Debug.LogError("Deserialization" + e.Message);
+        }
 
         userComment.interactable = true;
-
     }
+    IEnumerator EmotionError()
+    {
+        emotionError.enabled = true;
 
+        yield return new WaitForSeconds(3);
+
+        emotionError.enabled = false;
+    }
 }

@@ -7,10 +7,15 @@ using UniVRM10;
 
 public class LoadVRMAvatar : MonoBehaviour
 {
-    [SerializeField] RuntimeAnimatorController vrmAnimatorController;
-    [SerializeField] Button tohokuF01;
-    [SerializeField] Button mei;
-    [SerializeField] Button takumi;
+    [SerializeField] int _minBlinkTime;
+    [SerializeField] int _maxBlinkTime;
+    [SerializeField] float _blinkEyeCloseDuration = 0.06f;
+    [SerializeField] float _blinkEyeOpeningSeconds = 0.03f;
+    [SerializeField] float _blinkEyeClosingSeconds = 0.1f;
+    [SerializeField] RuntimeAnimatorController _vrmAnimatorController;
+    [SerializeField] Button _tohokuF01;
+    [SerializeField] Button _mei;
+    [SerializeField] Button _takumi;
 
     public static string vrmName;
     public static GameObject vrmAvatar;
@@ -23,9 +28,9 @@ public class LoadVRMAvatar : MonoBehaviour
 
     private void Start()
     {
-        tohokuF01.onClick.AddListener(() => SelectVRMAvatar(vrmNameList[0]));
-        mei.onClick.AddListener(() => SelectVRMAvatar(vrmNameList[1]));
-        takumi.onClick.AddListener(() => SelectVRMAvatar(vrmNameList[2]));
+        _tohokuF01.onClick.AddListener(() => SelectVRMAvatar(vrmNameList[0]));
+        _mei.onClick.AddListener(() => SelectVRMAvatar(vrmNameList[1]));
+        _takumi.onClick.AddListener(() => SelectVRMAvatar(vrmNameList[2]));
 
     }
 
@@ -53,7 +58,9 @@ public class LoadVRMAvatar : MonoBehaviour
 
             Animator animator = vrmAvatar.GetComponent<Animator>();
             animator.runtimeAnimatorController = (RuntimeAnimatorController)
-                RuntimeAnimatorController.Instantiate(vrmAnimatorController);
+                RuntimeAnimatorController.Instantiate(_vrmAnimatorController);
+
+            StartCoroutine("AvatarBlink");
         } catch (Exception e)
         {
             Debug.LogError("Failed to load");
@@ -77,6 +84,39 @@ public class LoadVRMAvatar : MonoBehaviour
              controller.SetWeights(facial);
         } else {
             Debug.LogError("VRM Avatar is not loaded");
+        }
+    }
+
+    IEnumerator AvatarBlink()
+    {
+        while (true)
+        {
+            var expressionController = vrmAvatar.GetComponent<Vrm10Instance>().Runtime.Expression;
+
+            yield return new WaitForSeconds(UnityEngine.Random.Range(_minBlinkTime, _maxBlinkTime));
+
+            var value = 0f;
+            var closedSpeed = 1.0f / _blinkEyeClosingSeconds;
+            while (value < 1f)
+            {
+                expressionController.SetWeight(ExpressionKey.Blink, value);
+                value += Time.deltaTime * closedSpeed;
+                yield return null;
+            }
+            expressionController.SetWeight(ExpressionKey.Blink, 1);
+
+            yield return new WaitForSeconds(_blinkEyeCloseDuration);
+
+            value = 1f;
+            var openSpeed = 1.0f / _blinkEyeOpeningSeconds;
+
+            while (value > 0)
+            {
+                expressionController.SetWeight(ExpressionKey.Blink, value);
+                value -= Time.deltaTime * openSpeed;
+                yield return null;
+            }
+            expressionController.SetWeight(ExpressionKey.Blink, 0);
         }
     }
 }
