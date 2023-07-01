@@ -60,63 +60,12 @@ public class LoadVRMAvatar : MonoBehaviour
             animator.runtimeAnimatorController = (RuntimeAnimatorController)
                 RuntimeAnimatorController.Instantiate(_vrmAnimatorController);
 
-            StartCoroutine("AvatarBlink");
+            vrmAvatar.AddComponent<AudioSource>();
         } catch (Exception e)
         {
             Debug.LogError("Failed to load");
             Debug.LogException(e);
             throw;
-        }
-    }
-
-    public void AvatarFaceControl(ViewPrintManager.Emotion emotion)
-    {
-        if (vrmAvatar != null)
-        {
-            var controller = vrmAvatar.GetComponent<Vrm10Instance>().Runtime.Expression;
-            var facial = new Dictionary<ExpressionKey, float> {
-                { ExpressionKey.Happy,     emotion.happy},
-                { ExpressionKey.Angry,      emotion.angry},
-                { ExpressionKey.Sad,        emotion.sad},
-                { ExpressionKey.Relaxed,   emotion.relaxed},
-                { ExpressionKey.Surprised, emotion.surprised},
-             };
-             controller.SetWeights(facial);
-        } else {
-            Debug.LogError("VRM Avatar is not loaded");
-        }
-    }
-
-    IEnumerator AvatarBlink()
-    {
-        while (true)
-        {
-            var expressionController = vrmAvatar.GetComponent<Vrm10Instance>().Runtime.Expression;
-
-            yield return new WaitForSeconds(UnityEngine.Random.Range(_minBlinkTime, _maxBlinkTime));
-
-            var value = 0f;
-            var closedSpeed = 1.0f / _blinkEyeClosingSeconds;
-            while (value < 1f)
-            {
-                expressionController.SetWeight(ExpressionKey.Blink, value);
-                value += Time.deltaTime * closedSpeed;
-                yield return null;
-            }
-            expressionController.SetWeight(ExpressionKey.Blink, 1);
-
-            yield return new WaitForSeconds(_blinkEyeCloseDuration);
-
-            value = 1f;
-            var openSpeed = 1.0f / _blinkEyeOpeningSeconds;
-
-            while (value > 0)
-            {
-                expressionController.SetWeight(ExpressionKey.Blink, value);
-                value -= Time.deltaTime * openSpeed;
-                yield return null;
-            }
-            expressionController.SetWeight(ExpressionKey.Blink, 0);
         }
     }
 }

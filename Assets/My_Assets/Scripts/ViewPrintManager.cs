@@ -4,10 +4,12 @@ using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.UI;
 using AAA.OpenAI;
+using AAA.Rinna;
 
 
 public class ViewPrintManager: MonoBehaviour
 {
+    [SerializeField] string rinnaAIApiKey;
     [SerializeField] string openAIApiKey;
     [SerializeField] Image loadingIcon;
     [SerializeField] Text chatHistory;
@@ -15,7 +17,6 @@ public class ViewPrintManager: MonoBehaviour
 
     public InputField userComment;
 
-    private LoadVRMAvatar loadVRMAvatar;
     private VRMBodyControl vrmBodyControl;
 
 
@@ -34,11 +35,20 @@ public class ViewPrintManager: MonoBehaviour
         public float surprised;
     }
 
+    public class RinnaAPISettings
+    {
+        public int voiceID;
+        public int emotionID;
+        public float speakSpeed;
+        public string message;
+        public float volume;
+        public string format;
+    }
+
     private void Start()
     {
         loadingIcon.enabled = false;
 
-        loadVRMAvatar = new LoadVRMAvatar();
         vrmBodyControl = new VRMBodyControl();
 
         userComment = userComment.GetComponent<InputField>();
@@ -62,8 +72,8 @@ public class ViewPrintManager: MonoBehaviour
 
         chatHistory.text += $"Ž©•ª:{userComment.text}\n";
 
-        var response = await chatGPTConnection.RequestAsync(userComment, loadingIcon);
-        var responseJsonData = response.choices[0].message.content;
+        var responseChatGPT = await chatGPTConnection.RequestAsync(userComment, loadingIcon);
+        var responseJsonData = responseChatGPT.choices[0].message.content;
 
         try
         {
@@ -71,10 +81,24 @@ public class ViewPrintManager: MonoBehaviour
             Emotion reactionEmotion = responseData.emotion;
             string reactionMessage = responseData.message;
 
-            loadVRMAvatar.AvatarFaceControl(reactionEmotion);
+            vrmBodyControl.AvatarFaceControl(reactionEmotion);
+
             chatHistory.text += $"ChatGPT:{reactionMessage}\n";
 
-            await vrmBodyControl.AvatarSpeakMessage(reactionEmotion, reactionMessage);
+            var rinnaAPIConnection = new RinnaAPIConnection(rinnaAIApiKey);
+            var rinnaAPISettings = new RinnaAPISettings
+            {
+                voiceID = 27,
+                emotionID = FindMaxEmotion(reactionEmotion),
+                speakSpeed = 1f,
+                message = reactionMessage,
+                volume = 10f,
+                format = "wav"
+            };
+
+            var responseRinna = await rinnaAPIConnection.RequestAsync(rinnaAPISettings);
+
+            await vrmBodyControl.SpeakResponseMessage(responseRinna.mediaContentUrl);
         }
         catch (JsonException e)
         {
@@ -84,6 +108,23 @@ public class ViewPrintManager: MonoBehaviour
 
         userComment.interactable = true;
     }
+
+    private int FindMaxEmotion(Emotion emotion)
+    {
+        float maxEmotion = Mathf.Max(emotion.happy, emotion.angry, emotion.sad, emotion.relaxed, emotion.surprised);
+
+        if (maxEmotion == emotion.happy)
+            return 2;
+        else if (maxEmotion == emotion.angry)
+            return 5;
+        else if (maxEmotion == emotion.sad)
+            return 3;
+        else if (maxEmotion == emotion.surprised)
+            return 7;
+        else
+            return 1; // Except four emotions (relaxed etc)
+    }
+
     IEnumerator EmotionError()
     {
         emotionError.enabled = true;

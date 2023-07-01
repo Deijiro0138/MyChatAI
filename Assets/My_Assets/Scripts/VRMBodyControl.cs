@@ -1,9 +1,11 @@
+using System;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
-using JTalkDll;
+using UnityEngine.Networking;
+using UniVRM10;
 
 public class VRMBodyControl : MonoBehaviour
 {
@@ -11,66 +13,44 @@ public class VRMBodyControl : MonoBehaviour
     private void Start()
     {
         loadVRMAvatar = new LoadVRMAvatar();
+        
     }
 
-    public async UniTask AvatarSpeakMessage(ViewPrintManager.Emotion emotion, string msg)
+    public async UniTask SpeakResponseMessage(string url)
     {
-        var voiceEmotion = CalculateVoiceEmotion(emotion);
+        var audioSource = LoadVRMAvatar.vrmAvatar.GetComponent<AudioSource>();
+        var www = UnityWebRequestMultimedia.GetAudioClip(url, AudioType.WAV);
 
-        foreach(var avatar in LoadVRMAvatar.vrmNameList.Select((name, index) => new { name, index}))
+        await www.SendWebRequest();
+
+        if (www.result == UnityWebRequest.Result.Success)
         {
-            if (LoadVRMAvatar.vrmName == avatar.name)
-            {
-                string voiceName;
+            var responseAudioClip = DownloadHandlerAudioClip.GetContent(www);
 
-                if (avatar.name == "tohoku-f01")
-                {
-                    voiceName = avatar.name + "-";
-                    if (voiceEmotion == "normal")
-                    {
-                        voiceName += "neutral";
-                    } else {
-                        voiceName += voiceEmotion;
-                    }
-                } else {
-                    voiceName = avatar.name + "_" + voiceEmotion;
-                }
-
-                await UniTask.Run(() => OpenJTalk.Speak(msg, voiceName));
-                break;
-            }
+            audioSource.PlayOneShot(responseAudioClip);
+        } else {
+            throw new Exception();
         }
     }
 
-    private string CalculateVoiceEmotion(ViewPrintManager.Emotion emotion)
+    public void AvatarFaceControl(ViewPrintManager.Emotion emotion)
     {
-        var emotionVoice = new List<string>
+        var vrm = LoadVRMAvatar.vrmAvatar;
+        if (vrm != null)
         {
-            "angry",
-            "happy",
-            "normal",
-            "sad"
-        };
-
-        var weights = new List<float>
+            var controller = vrm.GetComponent<Vrm10Instance>().Runtime.Expression;
+            var facial = new Dictionary<ExpressionKey, float> {
+                { ExpressionKey.Happy,     emotion.happy},
+                { ExpressionKey.Angry,      emotion.angry},
+                { ExpressionKey.Sad,        emotion.sad},
+                { ExpressionKey.Relaxed,   emotion.relaxed},
+                { ExpressionKey.Surprised, emotion.surprised},
+             };
+            controller.SetWeights(facial);
+        }
+        else
         {
-            0.3f,
-            0.2f,
-            0.1f,
-            0.4f
-        };
-
-        var scores = new List<float>()
-        {
-            emotion.angry   * weights[0],
-            emotion.happy  * weights[1],
-            emotion.relaxed * weights[2],
-            emotion.sad      * weights[3]
-        };
-
-        var maxScore = scores.Max();
-        var maxIndex = scores.IndexOf(maxScore);
-
-        return emotionVoice[maxIndex];
+            Debug.LogError("VRM Avatar is not loaded");
+        }
     }
 }
