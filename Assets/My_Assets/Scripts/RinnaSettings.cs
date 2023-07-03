@@ -62,7 +62,7 @@ namespace AAA.Rinna
             } else {
                 var responseString = request.downloadHandler.text;
                 var responseObject = JsonUtility.FromJson<RinnaAPIResponseModel>(responseString);
-               // var responseMediaURL = responseObject.mediaContentUrl;
+
                 return responseObject;
             }
         }

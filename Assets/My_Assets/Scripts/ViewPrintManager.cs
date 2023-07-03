@@ -15,6 +15,7 @@ public class ViewPrintManager: MonoBehaviour
     [SerializeField] Text chatHistory;
     [SerializeField] Text emotionError;
 
+    public static float voiceVolume = 5.05f; //0.1~10f
     public InputField userComment;
 
     private VRMBodyControl vrmBodyControl;
@@ -92,7 +93,7 @@ public class ViewPrintManager: MonoBehaviour
                 emotionID = FindMaxEmotion(reactionEmotion),
                 speakSpeed = 1f,
                 message = reactionMessage,
-                volume = 10f,
+                volume = voiceVolume,
                 format = "wav"
             };
 
@@ -123,6 +124,11 @@ public class ViewPrintManager: MonoBehaviour
             return 7;
         else
             return 1; // Except four emotions (relaxed etc)
+    }
+
+    public void SoundSliderOnValueChange(float sliderValue)
+    {
+        voiceVolume = 0.1f + 9.9f * sliderValue;
     }
 
     IEnumerator EmotionError()
