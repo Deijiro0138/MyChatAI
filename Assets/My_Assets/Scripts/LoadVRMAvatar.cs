@@ -74,7 +74,7 @@ public class LoadVRMAvatar : MonoBehaviour
         var ulipSyncBlendShape = vrmAvatar.AddComponent<uLipSync.uLipSyncBlendShape>();
 
         ulipSync.profile = _femaleProfile;
-        LipSyncInfo lipSyncInfo = new LipSyncInfo()
+        LipSyncInfo lipSyncInfo = new LipSyncInfo();
         {
 
         };
